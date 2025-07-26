@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { api } from '../api/client';  
 
 export default function Balance() {
   const [balance, setBalance] = useState(null);
@@ -26,10 +26,9 @@ export default function Balance() {
     }
 
     async function load() {
-      const url = `https://backend-5z27.onrender.com/accounts/balance`;
-      console.log('Fetching balance from:', url, 'with', user);
       try {
-        const res = await axios.get(url, {
+        console.log('Calling /accounts/balance with', user);
+        const res = await api.get('/accounts/balance', {
           params: { email: user.email, password: user.password }
         });
         console.log('Balance response:', res.data);
@@ -65,21 +64,10 @@ export default function Balance() {
           background: linear-gradient(135deg, #ffffff, #f0f9ff);
           box-shadow: 0 8px 20px rgba(0, 112, 243, 0.15);
           text-align: center;
-          transition: all 0.4s ease;
         }
-        .balance-loading {
-          color: #4b5563;
-        }
-        .balance-error {
-          color: #dc2626;
-          text-align: center;
-          margin-top: 2rem;
-        }
-        .balance-amount {
-          font-size: 2rem;
-          font-weight: 700;
-          color: #065f46;
-        }
+        .balance-loading { color: #4b5563; }
+        .balance-error   { color: #dc2626; margin-top:2rem; }
+        .balance-amount  { color: #065f46; font-size:2rem; font-weight:700; }
       `}</style>
     </div>
   );
