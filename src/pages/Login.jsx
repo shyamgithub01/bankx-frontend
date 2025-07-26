@@ -114,7 +114,7 @@ export default function Login() {
         </div>
 
         <footer className="bank-footer">
-          <p>© State Bank of India (APM Id: Serv_Tran_552)</p>
+          <p>MyBank (APM Id: Serv_Tran_552)</p>
           <p>Site best viewed at 1024x768 in Microsoft Edge 79+, Mozilla 96+, Chrome 97+</p>
         </footer>
       </div>
@@ -169,7 +169,7 @@ export default function Login() {
         }
 
         .bank-login-form input {
-          width: 100%;
+          width: 90%;
           padding: 0.7rem;
           margin-bottom: 1.5rem;
           border: 1px solid #cbd5e1;
