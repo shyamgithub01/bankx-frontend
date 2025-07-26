@@ -14,79 +14,94 @@ export default function AdminLogin() {
 
   return (
     <>
-      <form className="admin-login-form" onSubmit={handleSubmit}>
-        <h2 className="form-title">Admin Login</h2>
+      <div className="admin-login-container">
+        <div className="admin-banner">
+          <h2>Admin Login</h2>
+          <p>Authorised access for account management only</p>
+        </div>
 
-        <div>
-          <label className="form-label">Admin Username</label>
+        <form className="login-form" onSubmit={handleSubmit}>
+          <label className="form-label">Username</label>
           <input
             type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
             className="form-input"
+            placeholder="Enter username"
           />
-        </div>
 
-        <div>
-          <label className="form-label">Admin Password</label>
+          <label className="form-label">Password</label>
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
             className="form-input"
+            placeholder="Enter password"
           />
-        </div>
 
-        <button type="submit" className="form-button">Login</button>
-      </form>
+          <button type="submit" className="form-button">Login</button>
+        </form>
+      </div>
 
       <style>{`
-        .admin-login-form {
-          max-width: 400px;
-          margin: 3rem auto;
-          padding: 2.5rem;
-          background: linear-gradient(135deg, #f3f4f6, #dbeafe);
-          border-radius: 1.5rem;
-          box-shadow: 0 10px 25px rgba(96, 165, 250, 0.2);
-          transition: all 0.4s ease;
-          transform: perspective(1000px) translateZ(0);
-          font-family: sans-serif;
+        .admin-login-container {
+          max-width: 500px;
+          margin: 2rem auto;
+          font-family: 'Segoe UI', sans-serif;
+          border: 1px solid #d1d5db;
+          border-radius: 10px;
+          background: #f9fafb;
+          box-shadow: 0 0 20px rgba(0,0,0,0.05);
         }
 
-        .form-title {
+        .admin-banner {
+          background: linear-gradient(to right, #c6e6fb, #e3f2fd);
+          padding: 1.5rem;
+          border-radius: 10px 10px 0 0;
           text-align: center;
-          font-size: 1.75rem;
-          font-weight: bold;
-          margin-bottom: 2rem;
-          color: #1d4ed8;
+        }
+
+        .admin-banner h2 {
+          color: #0b5394;
+          margin-bottom: 0.3rem;
+        }
+
+        .admin-banner p {
+          color: #1d3557;
+          font-size: 0.95rem;
+        }
+
+        .login-form {
+          padding: 2rem;
+          display: flex;
+          flex-direction: column;
+          background: white;
         }
 
         .form-label {
-          display: block;
-          margin-bottom: 0.5rem;
           font-weight: 600;
-          color: #2563eb;
-          font-size: 0.95rem;
+          margin-bottom: 0.5rem;
+          color: #0369a1;
         }
 
         .form-input {
           width: 90%;
           padding: 0.75rem 1rem;
           margin-bottom: 1.5rem;
-          border: 1px solid #bfdbfe;
+          border: 1px solid #bae6fd;
           border-radius: 0.5rem;
           font-size: 1rem;
-          color: #1e3a8a;
+          color: #0c4a6e;
           background-color: white;
           transition: all 0.3s ease;
         }
 
         .form-input:focus {
-          border-color: #3b82f6;
+          border-color: #0284c7;
           outline: none;
-          box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+          box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.3);
         }
 
         .form-button {
@@ -95,50 +110,46 @@ export default function AdminLogin() {
           font-weight: 600;
           font-size: 1rem;
           color: white;
-          background: linear-gradient(to right, #3b82f6, #2563eb);
+          background: linear-gradient(to right, #0284c7, #0369a1);
           border: none;
           border-radius: 0.75rem;
           cursor: pointer;
-          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+          box-shadow: 0 4px 12px rgba(2, 132, 199, 0.4);
           transition: all 0.3s ease;
         }
 
         .form-button:hover {
-          background: linear-gradient(to right, #2563eb, #1d4ed8);
+          background: linear-gradient(to right, #0369a1, #0c4a6e);
           transform: scale(1.05);
-          box-shadow: 0 6px 18px rgba(59, 130, 246, 0.5);
+          box-shadow: 0 6px 18px rgba(3, 105, 161, 0.5);
         }
 
         .form-button:active {
           transform: scale(0.97);
         }
 
-        @media (prefers-color-scheme: light) {
-          .admin-login-form {
-            background: linear-gradient(135deg, #1f2937, #0f172a);
-            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.2);
+        @media screen and (max-width: 600px) {
+          .admin-login-container {
+            margin: 1rem;
+            border-radius: 8px;
           }
-          .form-title {
-            color: #dbeafe;
+
+          .login-form {
+            padding: 1.5rem 1rem;
           }
-          .form-label {
-            color: #60a5fa;
+
+          .admin-banner h2 {
+            font-size: 1.4rem;
           }
+
           .form-input {
-            background-color: #111827;
-            color: #f3f4f6;
-            border-color: #4b5563;
+            width: 100%;
+            font-size: 0.95rem;
           }
-          .form-input:focus {
-            border-color: #2563eb;
-            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.3);
-          }
+
           .form-button {
-            background: linear-gradient(to right, #2563eb, #1d4ed8);
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.6);
-          }
-          .form-button:hover {
-            background: linear-gradient(to right, #1d4ed8, #2563eb);
+            font-size: 0.95rem;
+            padding: 0.8rem;
           }
         }
       `}</style>

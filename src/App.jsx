@@ -10,6 +10,7 @@ import Register from './pages/Register';
 import EmployeeLogin from './pages/EmployeeLogin';
 import AdminLogin from './pages/AdminLogin';
 
+import HomePage from './pages/HomePage';
 
 import ProtectedRoute from './components/ProtectedRoute';
 import Dashboard from './pages/Dashboard';
@@ -32,7 +33,7 @@ export default function App() {
 
       <Routes>
         {/* 1) Redirect root to login */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
+         <Route path="/" element={<HomePage />} />
 
         {/* 2) Public routes */}
         <Route path="/login"          element={<Login />} />

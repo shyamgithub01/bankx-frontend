@@ -20,16 +20,31 @@ export default function Navbar() {
     <>
       <nav className="nav-container">
         <div className="nav-header">
-          <h2 className="nav-logo">MyBank</h2>
+          <Link to="/">
+  <img
+    src="/assets/logo1.png"
+    alt="Bank Logo"
+    style={{
+      borderRadius: '50%',
+      width: '100px',
+      height: '100px',
+    }}
+  />
+</Link>
+            <Link className="nav-link" to="/login">User Login</Link>
           <button className="hamburger" onClick={() => setMenuOpen(!menuOpen)}>
-            &#x22EE;
+            &#x2630;
           </button>
         </div>
 
         <div className={`nav-links ${menuOpen ? 'show' : ''}`}>
+
+    
+          <Link className="nav-link" to="/">Home</Link>
+
           {!user && !employee && !admin && (
             <>
-              <Link className="nav-link" to="/login">User Login</Link>
+              
               <Link className="nav-link" to="/register">Register</Link>
               <Link className="nav-link" to="/employee-login">Employee Login</Link>
               <Link className="nav-link" to="/admin-login">Admin Login</Link>
@@ -43,6 +58,7 @@ export default function Navbar() {
               <Link className="nav-link" to="/transfer">Transfer</Link>
             </>
           )}
+
           {admin && <Link className="nav-link" to="/add-employee">Add Employee</Link>}
           {employee && <Link className="nav-link" to="/delete-account">Delete Account</Link>}
 

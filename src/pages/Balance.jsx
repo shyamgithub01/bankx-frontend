@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { api } from '../api/client';  
+import { api } from '../api/client';
 
 export default function Balance() {
   const [balance, setBalance] = useState(null);
@@ -27,14 +27,12 @@ export default function Balance() {
 
     async function load() {
       try {
-        console.log('Calling /accounts/balance with', user);
         const res = await api.get('/accounts/balance', {
           params: { email: user.email, password: user.password }
         });
-        console.log('Balance response:', res.data);
         setBalance(res.data.balance);
       } catch (err) {
-        console.error('Balance error:', err);
+        console.error(err);
         setError('Unable to fetch balance');
       }
     }
@@ -42,33 +40,94 @@ export default function Balance() {
     load();
   }, []);
 
-  if (error) {
-    return <p className="balance-error">{error}</p>;
-  }
-
   return (
-    <div className="balance-container">
-      <h2 className="balance-title">Your Balance</h2>
-      {balance === null ? (
-        <p className="balance-loading">Loading…</p>
-      ) : (
-        <p className="balance-amount">₹{balance}</p>
-      )}
+    <>
+      <div className="balance-container">
+        <div className="balance-banner">
+          <h2>Your Balance</h2>
+          <p>Track your current account balance</p>
+        </div>
+
+        <div className="balance-content">
+          {error ? (
+            <p className="balance-error">{error}</p>
+          ) : balance === null ? (
+            <p className="balance-loading">Loading…</p>
+          ) : (
+            <p className="balance-amount">₹{balance}</p>
+          )}
+        </div>
+      </div>
 
       <style>{`
         .balance-container {
-          max-width: 400px;
-          margin: 3rem auto;
-          padding: 2.5rem;
-          border-radius: 1.5rem;
-          background: linear-gradient(135deg, #ffffff, #f0f9ff);
-          box-shadow: 0 8px 20px rgba(0, 112, 243, 0.15);
+          max-width: 500px;
+          margin: 2rem auto;
+          font-family: 'Segoe UI', sans-serif;
+          border: 1px solid #d1d5db;
+          border-radius: 10px;
+          background: #f9fafb;
+          box-shadow: 0 0 20px rgba(0,0,0,0.05);
+        }
+
+        .balance-banner {
+          background: linear-gradient(to right, #c6e6fb, #e3f2fd);
+          padding: 1.5rem;
+          border-radius: 10px 10px 0 0;
           text-align: center;
         }
-        .balance-loading { color: #4b5563; }
-        .balance-error   { color: #dc2626; margin-top:2rem; }
-        .balance-amount  { color: #065f46; font-size:2rem; font-weight:700; }
+
+        .balance-banner h2 {
+          color: #0b5394;
+          margin-bottom: 0.3rem;
+        }
+
+        .balance-banner p {
+          color: #1d3557;
+          font-size: 0.95rem;
+        }
+
+        .balance-content {
+          padding: 2rem;
+          background: white;
+          text-align: center;
+        }
+
+        .balance-loading {
+          color: #4b5563;
+          font-size: 1rem;
+        }
+
+        .balance-error {
+          color: #dc2626;
+          font-size: 1rem;
+        }
+
+        .balance-amount {
+          color: #065f46;
+          font-size: 2rem;
+          font-weight: 700;
+        }
+
+        @media screen and (max-width: 600px) {
+          .balance-container {
+            margin: 1rem;
+            border-radius: 8px;
+          }
+
+          .balance-banner h2 {
+            font-size: 1.4rem;
+          }
+
+          .balance-content {
+            padding: 1.5rem 1rem;
+          }
+
+          .balance-amount {
+            font-size: 1.75rem;
+          }
+        }
       `}</style>
-    </div>
+    </>
   );
 }

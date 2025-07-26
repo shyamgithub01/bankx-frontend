@@ -26,56 +26,73 @@ export default function AddEmployee() {
 
   return (
     <>
-      <form className="form-container" onSubmit={handleSubmit}>
-        <h2 className="form-title">Add Employee</h2>
+      <div className="form-wrapper">
+        <div className="form-header">
+          <h2>Add New Employee</h2>
+          <p>Securely create login credentials for your staff.</p>
+        </div>
 
-        <label className="form-label">Email</label>
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          className="form-input"
-        />
+        <form className="form-container" onSubmit={handleSubmit}>
+          <label className="form-label">Email</label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="form-input"
+          />
 
-        <label className="form-label">Password</label>
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          className="form-input"
-        />
+          <label className="form-label">Password</label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            className="form-input"
+          />
 
-        <button type="submit" className="form-button">
-          Add Employee
-        </button>
-      </form>
+          <button type="submit" className="form-button">
+            Add Employee
+          </button>
+        </form>
+      </div>
 
       <style>{`
-        .form-container {
-          max-width: 400px;
-          margin: 3rem auto;
-          background: linear-gradient(135deg, #ffffff, #ebf4ff, #dbeafe);
-          padding: 2.5rem;
-          border-radius: 1.5rem;
-          box-shadow: 0 10px 25px rgba(59, 130, 246, 0.25);
-          transition: all 0.4s ease;
-          transform: perspective(1000px) translateZ(0);
+        .form-wrapper {
+          max-width: 500px;
+          margin: 2rem auto;
+          font-family: 'Segoe UI', sans-serif;
+          border: 1px solid #d1d5db;
+          border-radius: 10px;
+          background: #f9fafb;
+          box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
         }
 
-       
-
-        .form-title {
+        .form-header {
+          background: linear-gradient(to right, #c6e6fb, #e3f2fd);
+          padding: 1.5rem;
+          border-radius: 10px 10px 0 0;
           text-align: center;
-          font-size: 1.75rem;
-          font-weight: bold;
-          margin-bottom: 2rem;
+        }
+
+        .form-header h2 {
+          color: #0b5394;
+          margin-bottom: 0.3rem;
+        }
+
+        .form-header p {
           color: #1e3a8a;
+          font-size: 0.95rem;
+        }
+
+        .form-container {
+          padding: 2rem;
+          display: flex;
+          flex-direction: column;
+          background: white;
         }
 
         .form-label {
-          display: block;
           margin-bottom: 0.5rem;
           font-weight: 600;
           color: #1d4ed8;
@@ -91,7 +108,7 @@ export default function AddEmployee() {
           color: #1e40af;
           background-color: white;
           transition: all 0.3s ease;
-      }
+        }
 
         .form-input:focus {
           border-color: #3b82f6;
@@ -121,6 +138,31 @@ export default function AddEmployee() {
 
         .form-button:active {
           transform: scale(0.97);
+        }
+
+        @media screen and (max-width: 600px) {
+          .form-wrapper {
+            margin: 1rem;
+            border-radius: 8px;
+          }
+
+          .form-container {
+            padding: 1.5rem 1rem;
+          }
+
+          .form-header h2 {
+            font-size: 1.4rem;
+          }
+
+          .form-input {
+            width: 100%;
+            font-size: 0.95rem;
+          }
+
+          .form-button {
+            font-size: 0.95rem;
+            padding: 0.8rem;
+          }
         }
       `}</style>
     </>
