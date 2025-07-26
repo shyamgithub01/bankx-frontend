@@ -101,7 +101,7 @@ export default function Register() {
   }
 
   .form-input {
-    width: 100%;
+    width: 90%;
     padding: 0.75rem 1rem;
     border: 1px solid #bae6fd;
     border-radius: 0.5rem;

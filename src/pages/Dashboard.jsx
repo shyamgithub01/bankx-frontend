@@ -40,7 +40,7 @@ const Dashboard = () => {
       marginBottom: "1rem"
     },
     input: {
-      width: "100%",
+      width: "90%",
       padding: "0.75rem",
       border: "1px solid #dde4eb",
       borderRadius: "8px",

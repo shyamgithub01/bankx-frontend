@@ -51,12 +51,11 @@ export default function Login() {
   .login-form {
     max-width: 400px;
     margin: 3rem auto;
-    padding: 2.5rem;
+    padding: 2rem;
     background: linear-gradient(135deg, #f3f4f6, #dbeafe);
     border-radius: 1.5rem;
     box-shadow: 0 10px 25px rgba(96, 165, 250, 0.2);
     transition: all 0.4s ease;
-    transform: perspective(1000px) translateZ(0);
     font-family: sans-serif;
   }
 
@@ -77,7 +76,7 @@ export default function Login() {
   }
 
   .form-input {
-    width: 95%;
+    width: 90%;
     padding: 0.75rem 1rem;
     margin-bottom: 1.5rem;
     border: 1px solid #bfdbfe;
@@ -118,6 +117,30 @@ export default function Login() {
     transform: scale(0.97);
   }
 
+  @media screen and (max-width: 500px) {
+    .login-form {
+      max-width: 90%;
+      padding: 1.2rem;
+      margin: 2rem auto;
+      border-radius: 1rem;
+    }
+
+    .form-title {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .form-input {
+      font-size: 0.95rem;
+      padding: 0.6rem 0.9rem;
+    }
+
+    .form-button {
+      padding: 0.75rem;
+      font-size: 0.95rem;
+    }
+  }
+
   @media (prefers-color-scheme: light) {
     .login-form {
       background: linear-gradient(135deg, #1f2937, #0f172a);
@@ -147,7 +170,6 @@ export default function Login() {
     }
   }
 `}</style>
-
     </>
   );
 }
