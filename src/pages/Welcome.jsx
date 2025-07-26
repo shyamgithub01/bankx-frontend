@@ -4,15 +4,15 @@ function Welcome() {
   
   const slides = [
     {
-      image: '/assets/welcome.png',
+      image: './assets/welcome.png',
       
     },
     {
-      image: '/assets/loan2.png',
+      image: './assets/loan2.png',
       caption: 'Your Business, Our Priority'
     },
     {
-      image: '/assets/acc.png',
+      image: './assets/acc.png',
       caption: 'Family Insurance You Can Trust'
     }
   ];

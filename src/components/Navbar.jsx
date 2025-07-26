@@ -22,7 +22,7 @@ export default function Navbar() {
         <div className="nav-header">
           <Link to="/">
   <img
-    src="/assets/logo1.png"
+    src="./assets/logo1.png"
     alt="Bank Logo"
     style={{
       borderRadius: '50%',
