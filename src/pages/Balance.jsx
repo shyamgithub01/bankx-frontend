@@ -1,36 +1,60 @@
 import { useState, useEffect } from 'react';
-import { api } from '../api/client';
+import axios from 'axios';
 
 export default function Balance() {
   const [balance, setBalance] = useState(null);
+  const [error, setError] = useState('');
 
   useEffect(() => {
+    const raw = localStorage.getItem('user');
+    if (!raw) {
+      setError('No user in storage');
+      return;
+    }
+
+    let user;
+    try {
+      user = JSON.parse(raw);
+    } catch {
+      setError('Invalid user data');
+      return;
+    }
+
+    if (!user.email || !user.password) {
+      setError('Missing credentials');
+      return;
+    }
+
     async function load() {
-      const user = JSON.parse(localStorage.getItem('user'));
+      const url = `https://backend-5z27.onrender.com/accounts/balance`;
+      console.log('Fetching balance from:', url, 'with', user);
       try {
-        const res = await api.get('/accounts/balance', {
+        const res = await axios.get(url, {
           params: { email: user.email, password: user.password }
         });
+        console.log('Balance response:', res.data);
         setBalance(res.data.balance);
-      } catch {
-        setBalance('Error fetching');
+      } catch (err) {
+        console.error('Balance error:', err);
+        setError('Unable to fetch balance');
       }
     }
+
     load();
   }, []);
 
+  if (error) {
+    return <p className="balance-error">{error}</p>;
+  }
+
   return (
-    <>
-      <div className="balance-container">
-        <h2 className="balance-title">Your Balance</h2>
-        {balance !== null ? (
-          <p className={`balance-amount ${balance === 'Error fetching' ? 'error' : ''}`}>
-            {balance === 'Error fetching' ? 'Error fetching' : `₹${balance}`}
-          </p>
-        ) : (
-          <p className="balance-loading">Loading...</p>
-        )}
-      </div>
+    <div className="balance-container">
+      <h2 className="balance-title">Your Balance</h2>
+      {balance === null ? (
+        <p className="balance-loading">Loading…</p>
+      ) : (
+        <p className="balance-amount">₹{balance}</p>
+      )}
 
       <style>{`
         .balance-container {
@@ -42,37 +66,21 @@ export default function Balance() {
           box-shadow: 0 8px 20px rgba(0, 112, 243, 0.15);
           text-align: center;
           transition: all 0.4s ease;
-          transform: perspective(1000px) translateZ(0);
         }
-
-        .balance-container:hover {
-          transform: perspective(1000px) translateZ(5px) scale(1.02);
-          box-shadow: 0 12px 28px rgba(59, 130, 246, 0.3);
+        .balance-loading {
+          color: #4b5563;
         }
-
-        .balance-title {
-          font-size: 1.75rem;
-          font-weight: bold;
-          margin-bottom: 1.5rem;
-          color: #1d4ed8;
+        .balance-error {
+          color: #dc2626;
+          text-align: center;
+          margin-top: 2rem;
         }
-
         .balance-amount {
           font-size: 2rem;
           font-weight: 700;
           color: #065f46;
-          transition: all 0.3s ease;
-        }
-
-        .balance-amount.error {
-          color: #dc2626;
-        }
-
-        .balance-loading {
-          font-size: 1.2rem;
-          color: #4b5563;
         }
       `}</style>
-    </>
+    </div>
   );
 }
