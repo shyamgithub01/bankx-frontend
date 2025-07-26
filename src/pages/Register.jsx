@@ -15,14 +15,13 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Basic validation
     if (aadhar.length !== 12 || mobile.length !== 10 || password.length < 8) {
       alert('Please ensure:\n- Aadhar is 12 digits\n- Mobile is 10 digits\n- Password is at least 8 characters');
       return;
     }
 
     try {
-      await api.post('/accounts', {
+      const response = await api.post('/accounts', {
         full_name: fullName,
         email,
         age: parseInt(age, 10),
@@ -31,7 +30,9 @@ export default function Register() {
         password,
         account_type: accountType,
       });
-      alert('Registration successful!');
+
+      const { account_number } = response.data;
+      alert(`Registration successful! Your account number is ${account_number}`);
       navigate('/login');
     } catch (err) {
       console.error('Backend Error:', err.response?.data);
@@ -76,7 +77,6 @@ export default function Register() {
     max-width: 500px;
     margin: 2rem auto;
     padding: 2rem;
-    /* use the same diagonal gradient as the login form */
     background: linear-gradient(135deg, #f9fafb, #e0f2fe);
     border-radius: 1.5rem;
     box-shadow: 0 10px 25px rgba(2, 132, 199, 0.2);
@@ -90,7 +90,6 @@ export default function Register() {
     font-size: 1.75rem;
     font-weight: bold;
     margin-bottom: 1.5rem;
-    /* deeper blue heading from the login snippet */
     color: #075985;
   }
 
@@ -99,7 +98,6 @@ export default function Register() {
     margin-bottom: 0.5rem;
     font-weight: 600;
     font-size: 0.95rem;
-    /* matching the login form labels */
     color: #0369a1;
   }
 
@@ -174,8 +172,6 @@ export default function Register() {
     }
   }
 `}</style>
-
-
     </>
   );
 }
