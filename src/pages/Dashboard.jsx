@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import { api } from "../api/client";  // ← use the shared client
 
 const Dashboard = () => {
   const [balance, setBalance] = useState(null);
@@ -9,19 +9,19 @@ const Dashboard = () => {
   });
 
   const loadBalance = () => {
-    axios
-      .get("http://localhost:8000/accounts/balance", {
-        params: formData
-      })
+    api
+      .get("/accounts/balance", { params: formData })
       .then((res) => setBalance(res.data.balance))
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        console.error("Error fetching balance:", err);
+        setBalance(null);
+      });
   };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // --- inline style definitions ---
   const styles = {
     card: {
       maxWidth: "400px",
