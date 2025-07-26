@@ -9,11 +9,11 @@ function Welcome() {
     },
     {
       image: './assets/loan2.png',
-      caption: 'Your Business, Our Priority'
+      
     },
     {
       image: './assets/acc.png',
-      caption: 'Family Insurance You Can Trust'
+      
     }
   ];
 
