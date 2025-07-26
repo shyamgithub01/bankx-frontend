@@ -80,31 +80,29 @@ export default function Register() {
     background: linear-gradient(135deg, #f9fafb, #e0f2fe);
     border-radius: 1.5rem;
     box-shadow: 0 10px 25px rgba(2, 132, 199, 0.2);
-    transition: all 0.4s ease;
-    transform: perspective(1000px) translateZ(0);
     font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
   }
 
   .form-title {
     text-align: center;
     font-size: 1.75rem;
     font-weight: bold;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
     color: #075985;
   }
 
   .form-label {
-    display: block;
-    margin-bottom: 0.5rem;
     font-weight: 600;
     font-size: 0.95rem;
     color: #0369a1;
   }
 
   .form-input {
-    width: 95%;
+    width: 100%;
     padding: 0.75rem 1rem;
-    margin-bottom: 1.5rem;
     border: 1px solid #bae6fd;
     border-radius: 0.5rem;
     font-size: 1rem;
@@ -135,40 +133,33 @@ export default function Register() {
 
   .form-button:hover {
     background: linear-gradient(to right, #0369a1, #0c4a6e);
-    transform: scale(1.05);
-    box-shadow: 0 6px 18px rgba(3, 105, 161, 0.5);
+    transform: scale(1.03);
   }
 
   .form-button:active {
     transform: scale(0.97);
   }
 
-  @media (prefers-color-scheme: light) {
+  @media screen and (max-width: 600px) {
     .register-form {
-      background: linear-gradient(135deg, #1f2937, #0f172a);
-      box-shadow: 0 10px 25px rgba(3, 105, 161, 0.4);
+      margin: 1rem;
+      padding: 1.5rem;
+      border-radius: 1rem;
+      box-shadow: 0 6px 20px rgba(2, 132, 199, 0.2);
     }
+
     .form-title {
-      color: #e0f2fe;
+      font-size: 1.5rem;
     }
-    .form-label {
-      color: #60a5fa;
-    }
+
     .form-input {
-      background-color: #111827;
-      color: #f3f4f6;
-      border-color: #4b5563;
+      font-size: 0.95rem;
+      padding: 0.6rem 0.9rem;
     }
-    .form-input:focus {
-      border-color: #2563eb;
-      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.3);
-    }
+
     .form-button {
-      background: linear-gradient(to right, #0369a1, #075985);
-      box-shadow: 0 4px 12px rgba(3, 105, 161, 0.6);
-    }
-    .form-button:hover {
-      background: linear-gradient(to right, #075985, #0c4a6e);
+      padding: 0.8rem;
+      font-size: 0.95rem;
     }
   }
 `}</style>
