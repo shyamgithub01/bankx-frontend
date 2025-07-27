@@ -155,7 +155,7 @@ export default function Navbar() {
 
           .nav-link,
           .logout-button {
-            width: 100%;
+            width: 90%;
           }
         }
       `}</style>
