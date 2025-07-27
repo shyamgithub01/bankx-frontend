@@ -1,16 +1,35 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { api } from '../api/client';
 
 export default function Transfer() {
   const [toAadhar, setToAadhar] = useState('');
   const [acctNum, setAcctNum] = useState('');
   const [amount, setAmount] = useState('');
+  const [user, setUser] = useState(null);
+
+  // Load user on component mount
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      try {
+        const parsed = JSON.parse(storedUser);
+        if (parsed.aadhar_card_number && parsed.password) {
+          setUser(parsed);
+        } else {
+          alert('User session is invalid. Please login again.');
+        }
+      } catch (err) {
+        alert('Failed to parse user session. Please login again.');
+      }
+    } else {
+      alert('Session expired. Please login again.');
+    }
+  }, []);
 
   const handle = async (e) => {
     e.preventDefault();
-    const user = JSON.parse(localStorage.getItem('user'));
 
-    if (!user?.aadhar_card_number || !user?.password) {
+    if (!user) {
       alert('Session expired or user not properly logged in.');
       return;
     }
@@ -36,6 +55,8 @@ export default function Transfer() {
 
       const res = await api.post('/transactions/transfer', payload);
       alert(`✅ Transferred successfully. New balance: ₹${res.data.sender.balance.toFixed(2)}`);
+
+      // Reset form
       setToAadhar('');
       setAcctNum('');
       setAmount('');
