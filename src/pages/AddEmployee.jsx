@@ -155,7 +155,7 @@ export default function AddEmployee() {
           }
 
           .form-input {
-            width: 100%;
+            width: 90%;
             font-size: 0.95rem;
           }
 
