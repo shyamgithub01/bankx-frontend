@@ -118,6 +118,7 @@ export default function Login() {
           <p>Site best viewed at 1024x768 in Microsoft Edge 79+, Mozilla 96+, Chrome 97+</p>
         </footer>
       </div>
+      
 
       <style>{`
         .bank-login-container {

@@ -28,6 +28,7 @@ function Welcome() {
   }, [slides.length]);
 
   
+  
   const containerStyle = {
     backgroundColor: '',   
     color: '#fff',               
