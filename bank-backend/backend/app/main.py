@@ -7,15 +7,12 @@ from app.routers.transactions import router as tx_router
 from app.routers.accounts     import router as acc_router
 
 
-app = FastAPI()
+app = FastAPI(title="BankX API")
 
 
 @app.get("/health", tags=["health"])
 async def health_check():
     return {"status": "ok"}
-
-
-app = FastAPI(title="BankX API")
 
 
 app.add_middleware(

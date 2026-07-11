@@ -1,164 +1,160 @@
-import { Link, useNavigate } from 'react-router-dom';
-import React, { useState } from 'react';
+import { useState } from 'react';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { getAdmin, getEmployee, getUser, clearSession } from '../auth';
+import { useToast } from './toast-context';
+import { Logo } from './ui';
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const toast = useToast();
 
-  const user = JSON.parse(localStorage.getItem('user'));
-  const employee = JSON.parse(localStorage.getItem('employee'));
-  const admin = JSON.parse(localStorage.getItem('admin'));
+  const user = getUser();
+  const employee = getEmployee();
+  const admin = getAdmin();
+  const signedIn = user || employee || admin;
 
   const logout = () => {
-    localStorage.removeItem('user');
-    localStorage.removeItem('employee');
-    localStorage.removeItem('admin');
+    clearSession();
+    setMenuOpen(false);
+    toast.info('Signed out', 'You have been signed out securely.');
     navigate('/login');
   };
 
+  const links = [{ to: '/', label: 'Home' }];
+
+  if (user) {
+    links.push(
+      { to: '/dashboard', label: 'Dashboard' },
+      { to: '/deposit', label: 'Deposit' },
+      { to: '/transfer', label: 'Transfer' },
+    );
+  }
+  if (employee) links.push({ to: '/delete-account', label: 'Manage Accounts' });
+  if (admin) links.push({ to: '/add-employee', label: 'Add Employee' });
+
+  const roleLabel = user ? 'Customer' : employee ? 'Employee' : admin ? 'Admin' : null;
+  const roleName = user?.email || employee?.email || admin?.username || '';
+
+  const linkClass = ({ isActive }) =>
+    `rounded-lg px-3 py-2 text-sm font-medium transition ${
+      isActive ? 'bg-brand-50 text-brand-700' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+    }`;
+
   return (
-    <>
-      <nav className="nav-container">
-        <div className="nav-header">
-          <Link to="/">
-  <img
-    src="./assets/logo1.png"
-    alt="Bank Logo"
-    style={{
-      borderRadius: '50%',
-      width: '100px',
-      height: '100px',
-    }}
-  />
-</Link>
-            <Link className="nav-link" to="/login">User Login</Link>
-          <button className="hamburger" onClick={() => setMenuOpen(!menuOpen)}>
-            &#x2630;
-          </button>
+    <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/85 backdrop-blur-md">
+      <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
+        <Link to="/" className="flex items-center gap-2.5" onClick={() => setMenuOpen(false)}>
+          <Logo className="h-8 w-8" />
+          <span className="text-lg font-bold tracking-tight text-slate-900">BankX</span>
+        </Link>
+
+        <div className="hidden items-center gap-1 md:flex">
+          {links.map((l) => (
+            <NavLink key={l.to} to={l.to} end={l.to === '/'} className={linkClass}>
+              {l.label}
+            </NavLink>
+          ))}
         </div>
 
-        <div className={`nav-links ${menuOpen ? 'show' : ''}`}>
-
-    
-          <Link className="nav-link" to="/">Home</Link>
-
-          {!user && !employee && !admin && (
+        <div className="hidden items-center gap-3 md:flex">
+          {signedIn ? (
             <>
-              
-              <Link className="nav-link" to="/register">Register</Link>
-              <Link className="nav-link" to="/employee-login">Employee Login</Link>
-              <Link className="nav-link" to="/admin-login">Admin Login</Link>
+              <div className="flex items-center gap-2.5 border-r border-slate-200 pr-3">
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-100 text-xs font-bold text-brand-700 uppercase">
+                  {roleName.charAt(0) || '?'}
+                </span>
+                <div className="leading-tight">
+                  <p className="max-w-[11rem] truncate text-xs font-semibold text-slate-900">{roleName}</p>
+                  <p className="text-[11px] text-slate-500">{roleLabel}</p>
+                </div>
+              </div>
+              <button
+                onClick={logout}
+                className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-600 transition hover:bg-rose-50 hover:text-rose-600"
+              >
+                Sign out
+              </button>
             </>
-          )}
-
-          {user && (
+          ) : (
             <>
-              <Link className="nav-link" to="/dashboard">Dashboard</Link>
-              <Link className="nav-link" to="/deposit">Deposit</Link>
-              <Link className="nav-link" to="/transfer">Transfer</Link>
+              <NavLink to="/login" className={linkClass}>
+                Sign in
+              </NavLink>
+              <Link
+                to="/register"
+                className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-brand-600/25 transition hover:bg-brand-700"
+              >
+                Open account
+              </Link>
             </>
-          )}
-
-          {admin && <Link className="nav-link" to="/add-employee">Add Employee</Link>}
-          {employee && <Link className="nav-link" to="/delete-account">Delete Account</Link>}
-
-          {(user || employee || admin) && (
-            <button className="logout-button" onClick={logout}>Logout</button>
           )}
         </div>
+
+        <button
+          className="flex h-10 w-10 items-center justify-center rounded-lg text-slate-600 transition hover:bg-slate-100 md:hidden"
+          onClick={() => setMenuOpen((o) => !o)}
+          aria-label="Toggle menu"
+          aria-expanded={menuOpen}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" className="h-5 w-5">
+            {menuOpen ? (
+              <path d="M18 6 6 18M6 6l12 12" strokeWidth="2" strokeLinecap="round" />
+            ) : (
+              <path d="M4 7h16M4 12h16M4 17h16" strokeWidth="2" strokeLinecap="round" />
+            )}
+          </svg>
+        </button>
       </nav>
 
-      <style>{`
-        .nav-container {
-          background: linear-gradient(to right, #f0f4ff, #e0ecff);
-          border-bottom: 2px solid #c7d2fe;
-          box-shadow: 0 4px 10px rgba(59, 130, 246, 0.15);
-        }
+      {menuOpen && (
+        <div className="border-t border-slate-200 bg-white px-5 py-3 md:hidden">
+          <div className="flex flex-col gap-1">
+            {links.map((l) => (
+              <NavLink
+                key={l.to}
+                to={l.to}
+                end={l.to === '/'}
+                className={linkClass}
+                onClick={() => setMenuOpen(false)}
+              >
+                {l.label}
+              </NavLink>
+            ))}
 
-        .nav-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 1rem 1.5rem;
-        }
-
-        .nav-logo {
-          font-size: 1.4rem;
-          font-weight: bold;
-          color: #1d4ed8;
-        }
-
-        .hamburger {
-          display: none;
-          font-size: 1.5rem;
-          background: none;
-          border: none;
-          cursor: pointer;
-          color: #1e3a8a;
-        }
-
-        .nav-links {
-          display: flex;
-          flex-wrap: wrap;
-          align-items: center;
-          padding: 0 1rem 1rem 1rem;
-        }
-
-        .nav-link {
-          margin-right: 1rem;
-          padding: 0.5rem 1rem;
-          text-decoration: none;
-          font-weight: 600;
-          color: #1d4ed8;
-          background-color: #e0f2fe;
-          border-radius: 8px;
-          transition: all 0.3s ease;
-        }
-
-        .nav-link:hover {
-          background-color: #bfdbfe;
-          color: #1e3a8a;
-          transform: scale(1.05);
-        }
-
-        .logout-button {
-          padding: 0.5rem 1rem;
-          font-weight: 600;
-          color: white;
-          background: linear-gradient(to right, #ef4444, #dc2626);
-          border: none;
-          border-radius: 8px;
-          cursor: pointer;
-          transition: all 0.3s ease;
-        }
-
-        .logout-button:hover {
-          background: linear-gradient(to right, #dc2626, #991b1b);
-          transform: scale(1.05);
-        }
-
-        @media (max-width: 600px) {
-          .hamburger {
-            display: block;
-          }
-
-          .nav-links {
-            display: none;
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 0.5rem;
-          }
-
-          .nav-links.show {
-            display: flex;
-          }
-
-          .nav-link,
-          .logout-button {
-            width: 90%;
-          }
-        }
-      `}</style>
-    </>
+            <div className="mt-2 border-t border-slate-200 pt-2">
+              {signedIn ? (
+                <>
+                  <p className="px-3 py-1 text-xs text-slate-500">
+                    Signed in as <span className="font-semibold text-slate-700">{roleName}</span> ({roleLabel})
+                  </p>
+                  <button
+                    onClick={logout}
+                    className="w-full rounded-lg px-3 py-2 text-left text-sm font-semibold text-rose-600 transition hover:bg-rose-50"
+                  >
+                    Sign out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <NavLink to="/login" className={linkClass} onClick={() => setMenuOpen(false)}>
+                    Sign in
+                  </NavLink>
+                  <NavLink to="/register" className={linkClass} onClick={() => setMenuOpen(false)}>
+                    Open account
+                  </NavLink>
+                  <NavLink to="/employee-login" className={linkClass} onClick={() => setMenuOpen(false)}>
+                    Employee login
+                  </NavLink>
+                  <NavLink to="/admin-login" className={linkClass} onClick={() => setMenuOpen(false)}>
+                    Admin login
+                  </NavLink>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </header>
   );
 }

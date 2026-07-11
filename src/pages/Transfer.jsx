@@ -1,172 +1,190 @@
-import { useState, useEffect } from 'react';
-import { api } from '../api/client';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { api, errorMessage } from '../api/client';
+import { getUser } from '../auth';
+import { useToast } from '../components/toast-context';
+import { Button, Card, Field, FormError, PageHeader } from '../components/ui';
+
+const MAX_TXN = 200000;
+
+const formatINR = (n) =>
+  new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(n);
 
 export default function Transfer() {
-  const [toAadhar, setToAadhar] = useState('');
-  const [acctNum, setAcctNum] = useState('');
-  const [amount, setAmount] = useState('');
-  const [user, setUser] = useState(null);
+  const user = getUser();
+  const [form, setForm] = useState({
+    receiver_aadhar_card_number: '',
+    receiver_account_number: '',
+    amount: '',
+    password: '',
+  });
+  const [errors, setErrors] = useState({});
+  const [formError, setFormError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [receipt, setReceipt] = useState(null);
+  const navigate = useNavigate();
+  const toast = useToast();
 
-  // Load user on component mount
-  useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      try {
-        const parsed = JSON.parse(storedUser);
-        if (parsed.aadhar_card_number && parsed.password) {
-          setUser(parsed);
-        } else {
-          alert('User session is invalid. Please login again.');
-        }
-      } catch (err) {
-        alert('Failed to parse user session. Please login again.');
-      }
-    } else {
-      alert('Session expired. Please login again.');
-    }
-  }, []);
+  const update = (name) => (e) => {
+    let { value } = e.target;
+    if (name === 'receiver_aadhar_card_number' || name === 'receiver_account_number')
+      value = value.replace(/\D/g, '').slice(0, 12);
 
-  const handle = async (e) => {
+    setForm((f) => ({ ...f, [name]: value }));
+    setErrors((p) => ({ ...p, [name]: undefined }));
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setFormError('');
+    setReceipt(null);
 
-    if (!user) {
-      alert('Session expired or user not properly logged in.');
+    const value = parseFloat(form.amount);
+    const found = {};
+
+    if (!/^\d{12}$/.test(form.receiver_aadhar_card_number))
+      found.receiver_aadhar_card_number = "Receiver's Aadhar must be 12 digits.";
+    else if (form.receiver_aadhar_card_number === user.aadhar_card_number)
+      found.receiver_aadhar_card_number = 'You cannot transfer to your own account.';
+
+    if (!/^\d{12}$/.test(form.receiver_account_number))
+      found.receiver_account_number = "Receiver's account number must be 12 digits.";
+
+    if (!form.amount || Number.isNaN(value) || value <= 0)
+      found.amount = 'Enter an amount greater than zero.';
+    else if (value > MAX_TXN)
+      found.amount = `A single transfer cannot exceed ${formatINR(MAX_TXN)}.`;
+
+    if (!form.password) found.password = 'Confirm your password to authorise this transfer.';
+
+    if (Object.keys(found).length) {
+      setErrors(found);
       return;
     }
 
-    if (toAadhar.length !== 12 || acctNum.length !== 12) {
-      alert('Receiver Aadhar and Account Number must be 12 digits.');
-      return;
-    }
-
-    if (parseFloat(amount) <= 0) {
-      alert('Amount must be a positive number.');
-      return;
-    }
-
+    setLoading(true);
     try {
-      const payload = {
+      const res = await api.post('/transactions/transfer', {
         sender_aadhar_card_number: user.aadhar_card_number,
-        password: user.password,
-        receiver_aadhar_card_number: toAadhar,
-        receiver_account_number: acctNum,
-        amount: parseFloat(amount),
-      };
+        password: form.password,
+        receiver_aadhar_card_number: form.receiver_aadhar_card_number,
+        receiver_account_number: form.receiver_account_number,
+        amount: value,
+      });
 
-      const res = await api.post('/transactions/transfer', payload);
-      alert(`✅ Transferred successfully. New balance: ₹${res.data.sender.balance.toFixed(2)}`);
-
-      // Reset form
-      setToAadhar('');
-      setAcctNum('');
-      setAmount('');
+      setReceipt({ sent: value, sender: res.data.sender, receiver: res.data.receiver });
+      setForm({
+        receiver_aadhar_card_number: '',
+        receiver_account_number: '',
+        amount: '',
+        password: '',
+      });
+      toast.success(
+        'Transfer complete',
+        `${formatINR(value)} sent to ${res.data.receiver.full_name}.`,
+      );
     } catch (err) {
-      alert(err.response?.data?.detail || '❌ Transfer failed. Please try again.');
+      const message = errorMessage(err, 'Transfer failed. Please try again.');
+      setFormError(message);
+      toast.error('Transfer failed', message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <>
-      <form className="transfer-form" onSubmit={handle}>
-        <h2 className="form-title">Transfer Funds</h2>
+    <main className="mx-auto max-w-lg px-5 py-10">
+      <PageHeader title="Transfer money" subtitle="Send funds to another BankX account." />
 
-        <label className="form-label">Receiver Aadhar</label>
-        <input
-          type="text"
-          value={toAadhar}
-          onChange={(e) => setToAadhar(e.target.value)}
-          required
-          minLength={12}
-          maxLength={12}
-          className="form-input"
-        />
+      <Card className="animate-fade-up">
+        <form onSubmit={handleSubmit} noValidate className="space-y-5">
+          <FormError message={formError} />
 
-        <label className="form-label">Receiver Account #</label>
-        <input
-          type="text"
-          value={acctNum}
-          onChange={(e) => setAcctNum(e.target.value)}
-          required
-          minLength={12}
-          maxLength={12}
-          className="form-input"
-        />
+          <div className="rounded-lg bg-slate-50 p-3.5 text-sm ring-1 ring-slate-200">
+            <p className="text-slate-500">Sending from</p>
+            <p className="mt-0.5 font-mono font-semibold text-slate-900">{user.account_number}</p>
+          </div>
 
-        <label className="form-label">Amount (₹)</label>
-        <input
-          type="number"
-          step="0.01"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          required
-          className="form-input"
-        />
+          <Field
+            label="Receiver's Aadhar number"
+            name="receiver_aadhar_card_number"
+            inputMode="numeric"
+            placeholder="12 digits"
+            value={form.receiver_aadhar_card_number}
+            onChange={update('receiver_aadhar_card_number')}
+            error={errors.receiver_aadhar_card_number}
+          />
 
-        <button type="submit" className="form-button">Send</button>
-      </form>
+          <Field
+            label="Receiver's account number"
+            name="receiver_account_number"
+            inputMode="numeric"
+            placeholder="12 digits"
+            value={form.receiver_account_number}
+            onChange={update('receiver_account_number')}
+            error={errors.receiver_account_number}
+          />
 
-      <style>{`
-        .transfer-form {
-          max-width: 500px;
-          margin: 3rem auto;
-          padding: 2rem;
-          background: #f8fafc;
-          border-radius: 1rem;
-          box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-        }
+          <Field
+            label="Amount"
+            name="amount"
+            type="number"
+            min="1"
+            step="0.01"
+            inputMode="decimal"
+            placeholder="0.00"
+            value={form.amount}
+            onChange={update('amount')}
+            error={errors.amount}
+          />
 
-        .form-title {
-          text-align: center;
-          font-size: 1.8rem;
-          font-weight: bold;
-          margin-bottom: 1.5rem;
-          color: #0c4a6e;
-        }
+          <Field
+            label="Confirm your password"
+            name="password"
+            type="password"
+            autoComplete="current-password"
+            placeholder="••••••••"
+            value={form.password}
+            onChange={update('password')}
+            error={errors.password}
+          />
 
-        .form-label {
-          margin-bottom: 0.5rem;
-          display: block;
-          font-weight: 600;
-          color: #0369a1;
-        }
+          <div className="flex gap-3">
+            <Button type="button" variant="secondary" onClick={() => navigate('/dashboard')}>
+              Cancel
+            </Button>
+            <Button type="submit" loading={loading} className="flex-1">
+              {loading ? 'Sending…' : 'Send money'}
+            </Button>
+          </div>
+        </form>
 
-        .form-input {
-          width: 90%;
-          padding: 0.75rem 1rem;
-          margin-bottom: 1.5rem;
-          border: 1px solid #cbd5e1;
-          border-radius: 0.5rem;
-          font-size: 1rem;
-        }
+        {receipt && (
+          <div className="animate-fade-up mt-6 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+            <div className="flex items-center gap-3">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" className="h-5 w-5">
+                  <path d="M20 6 9 17l-5-5" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </span>
+              <p className="text-sm font-semibold text-emerald-900">
+                {formatINR(receipt.sent)} sent successfully
+              </p>
+            </div>
 
-        .form-input:focus {
-          border-color: #0284c7;
-          outline: none;
-          box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.3);
-        }
-
-        .form-button {
-          width: 100%;
-          padding: 0.9rem;
-          font-weight: 600;
-          font-size: 1rem;
-          color: white;
-          background: #0284c7;
-          border: none;
-          border-radius: 0.75rem;
-          cursor: pointer;
-          box-shadow: 0 4px 12px rgba(2, 132, 199, 0.4);
-          transition: all 0.3s ease;
-        }
-
-        .form-button:hover {
-          background: #0369a1;
-        }
-
-        .form-button:active {
-          transform: scale(0.97);
-        }
-      `}</style>
-    </>
+            <dl className="mt-3 space-y-1.5 border-t border-emerald-200 pt-3 text-sm">
+              <div className="flex justify-between">
+                <dt className="text-emerald-700">Sent to</dt>
+                <dd className="font-medium text-emerald-900">{receipt.receiver.full_name}</dd>
+              </div>
+              <div className="flex justify-between">
+                <dt className="text-emerald-700">Your new balance</dt>
+                <dd className="font-semibold text-emerald-900">{formatINR(receipt.sender.balance)}</dd>
+              </div>
+            </dl>
+          </div>
+        )}
+      </Card>
+    </main>
   );
 }

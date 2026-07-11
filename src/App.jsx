@@ -1,79 +1,84 @@
-
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+
 import Navbar from './components/Navbar';
+import ProtectedRoute from './components/ProtectedRoute';
+import EmployeeProtectedRoute from './components/EmployeeProtectedRoute';
+import AdminProtectedRoute from './components/AdminProtectedRoute';
 
-import React from 'react';
-
-
+import HomePage from './pages/HomePage';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import EmployeeLogin from './pages/EmployeeLogin';
 import AdminLogin from './pages/AdminLogin';
 
-import HomePage from './pages/HomePage';
-
-import ProtectedRoute from './components/ProtectedRoute';
 import Dashboard from './pages/Dashboard';
-import Deposit   from './pages/Deposit';
-import Transfer  from './pages/Transfer';
-// import Balance   from './pages/Balance';
-
-// Employee‑protected pages
-import EmployeeProtectedRoute from './components/EmployeeProtectedRoute';
-import DeleteAccount          from './pages/DeleteAccount';
-
-// Admin‑protected pages
-import AdminProtectedRoute from './components/AdminProtectedRoute';
-import AddEmployee         from './pages/AddEmployee';
+import Deposit from './pages/Deposit';
+import Transfer from './pages/Transfer';
+import DeleteAccount from './pages/DeleteAccount';
+import AddEmployee from './pages/AddEmployee';
 
 export default function App() {
   return (
     <BrowserRouter>
-      <Navbar />
+      <div className="flex min-h-screen flex-col">
+        <Navbar />
 
-      <Routes>
-        {/* 1) Redirect root to login */}
-         <Route path="/" element={<HomePage />} />
+        <div className="flex-1">
+          <Routes>
+            <Route path="/" element={<HomePage />} />
 
-        {/* 2) Public routes */}
-        <Route path="/login"          element={<Login />} />
-        <Route path="/register"       element={<Register />} />
-        <Route path="/employee-login" element={<EmployeeLogin />} />
-        <Route path="/admin-login"    element={<AdminLogin />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/employee-login" element={<EmployeeLogin />} />
+            <Route path="/admin-login" element={<AdminLogin />} />
 
-        {/* 3) User‑only */}
-        <Route
-          path="/dashboard"
-          element={<ProtectedRoute><Dashboard/></ProtectedRoute>}
-        />
-        <Route
-          path="/deposit"
-          element={<ProtectedRoute><Deposit/></ProtectedRoute>}
-        />
-        <Route
-          path="/transfer"
-          element={<ProtectedRoute><Transfer/></ProtectedRoute>}
-        />
-        {/* <Route
-          path="/balance"
-          element={<ProtectedRoute><Balance/></ProtectedRoute>}
-        /> */}
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/deposit"
+              element={
+                <ProtectedRoute>
+                  <Deposit />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/transfer"
+              element={
+                <ProtectedRoute>
+                  <Transfer />
+                </ProtectedRoute>
+              }
+            />
 
-        {/* 4) Employee‑only */}
-        <Route
-          path="/delete-account"
-          element={<EmployeeProtectedRoute><DeleteAccount/></EmployeeProtectedRoute>}
-        />
+            <Route
+              path="/delete-account"
+              element={
+                <EmployeeProtectedRoute>
+                  <DeleteAccount />
+                </EmployeeProtectedRoute>
+              }
+            />
 
-        {/* 5) Admin‑only */}
-        <Route
-          path="/add-employee"
-          element={<AdminProtectedRoute><AddEmployee/></AdminProtectedRoute>}
-        />
+            <Route
+              path="/add-employee"
+              element={
+                <AdminProtectedRoute>
+                  <AddEmployee />
+                </AdminProtectedRoute>
+              }
+            />
 
-        {/* 6) Catch‑all: back to login */}
-        <Route path="*" element={<Navigate to="/login" replace />} />
-      </Routes>
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </div>
+      </div>
     </BrowserRouter>
   );
 }

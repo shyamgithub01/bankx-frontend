@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.models.account import Account
 from app.utils.exceptions import raise_400, raise_404
+from app.utils.security import hash_password, verify_and_upgrade
 from app.schemas.account import AccountCreate
 
 def generate_account_number(db: Session) -> str:
@@ -26,7 +27,7 @@ def create_account(db: Session, data: AccountCreate):
         age                  = data.age,
         aadhar_card_number   = data.aadhar_card_number,
         mobile_number        = data.mobile_number,
-        password             = data.password,        
+        password             = hash_password(data.password),
         account_type         = data.account_type,
         account_number       = generate_account_number(db),
     )
@@ -39,7 +40,7 @@ def change_password(db: Session, aadhar: str, new_password: str):
     acct = db.query(Account).filter_by(aadhar_card_number=aadhar).first()
     if not acct:
         raise_404("Account not found")
-    acct.password = new_password
+    acct.password = hash_password(new_password)
     db.commit()
     db.refresh(acct)
     return acct
@@ -53,6 +54,9 @@ def delete_account(db: Session, aadhar: str):
 
 def authenticate_user(db: Session, email: str, password: str):
     user = db.query(Account).filter_by(email=email).first()
-    if not user or user.password != password:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+    if not user or not verify_and_upgrade(db, user, password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid email or password",
+        )
     return user

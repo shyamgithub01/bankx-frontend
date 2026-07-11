@@ -25,7 +25,12 @@ def login_user(
     db: Session = Depends(get_db)
 ):
     user = authenticate_user(db, credentials.email, credentials.password)
-    return {"message": "Login successful", "account_number": user.account_number}
+    return {
+        "message": "Login successful",
+        "account_number": user.account_number,
+        "aadhar_card_number": user.aadhar_card_number,
+        "full_name": user.full_name,
+    }
 
 @router.post("/login/employee", summary="Employee login")
 def login_employee(
@@ -34,6 +39,10 @@ def login_employee(
 ):
     emp = authenticate_employee(db, credentials.email, credentials.password)
     return {"message": "Employee login successful", "employee_id": emp.id}
+
+@router.get("/login/admin", summary="Admin login")
+def login_admin(admin: str = Depends(get_admin)):
+    return {"message": "Admin login successful", "username": admin}
 
 @router.post(
     "/employees",

@@ -1,158 +1,75 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { api, errorMessage } from '../api/client';
+import { setSession } from '../auth';
+import { useToast } from '../components/toast-context';
+import { AuthLayout, Button, Field, FormError } from '../components/ui';
 
 export default function AdminLogin() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [formError, setFormError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const toast = useToast();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    localStorage.setItem('admin', JSON.stringify({ username, password }));
-    navigate('/add-employee');
+    setFormError('');
+    setLoading(true);
+
+    try {
+      // Verify against the server before trusting the credentials: the admin
+      // endpoints use HTTP Basic, so a bad pair must fail here, not later.
+      await api.get('/accounts/login/admin', { auth: { username, password } });
+      setSession('admin', { username, password });
+      toast.success('Signed in', 'Admin access granted.');
+      navigate('/add-employee');
+    } catch (err) {
+      const message = errorMessage(err, 'Admin login failed.');
+      setFormError(message);
+      toast.error('Sign in failed', message);
+      setPassword('');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <>
-      <div className="admin-login-container">
-        <div className="admin-banner">
-          <h2>Admin Login</h2>
-          <p>Authorised access for account management only</p>
-        </div>
+    <AuthLayout
+      eyebrow="Administration"
+      title="Admin sign in"
+      subtitle="Authorised staff only. All activity is logged."
+    >
+      <form onSubmit={handleSubmit} noValidate className="space-y-5">
+        <FormError message={formError} />
 
-        <form className="login-form" onSubmit={handleSubmit}>
-          <label className="form-label">Username</label>
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-            className="form-input"
-            placeholder="Enter username"
-          />
+        <Field
+          label="Username"
+          name="username"
+          type="text"
+          autoComplete="username"
+          placeholder="admin"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          required
+        />
 
-          <label className="form-label">Password</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            className="form-input"
-            placeholder="Enter password"
-          />
+        <Field
+          label="Password"
+          name="password"
+          type="password"
+          autoComplete="current-password"
+          placeholder="••••••••"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
 
-          <button type="submit" className="form-button">Login</button>
-        </form>
-      </div>
-
-      <style>{`
-        .admin-login-container {
-          max-width: 500px;
-          margin: 2rem auto;
-          font-family: 'Segoe UI', sans-serif;
-          border: 1px solid #d1d5db;
-          border-radius: 10px;
-          background: #f9fafb;
-          box-shadow: 0 0 20px rgba(0,0,0,0.05);
-        }
-
-        .admin-banner {
-          background: linear-gradient(to right, #c6e6fb, #e3f2fd);
-          padding: 1.5rem;
-          border-radius: 10px 10px 0 0;
-          text-align: center;
-        }
-
-        .admin-banner h2 {
-          color: #0b5394;
-          margin-bottom: 0.3rem;
-        }
-
-        .admin-banner p {
-          color: #1d3557;
-          font-size: 0.95rem;
-        }
-
-        .login-form {
-          padding: 2rem;
-          display: flex;
-          flex-direction: column;
-          background: white;
-        }
-
-        .form-label {
-          font-weight: 600;
-          margin-bottom: 0.5rem;
-          color: #0369a1;
-        }
-
-        .form-input {
-          width: 90%;
-          padding: 0.75rem 1rem;
-          margin-bottom: 1.5rem;
-          border: 1px solid #bae6fd;
-          border-radius: 0.5rem;
-          font-size: 1rem;
-          color: #0c4a6e;
-          background-color: white;
-          transition: all 0.3s ease;
-        }
-
-        .form-input:focus {
-          border-color: #0284c7;
-          outline: none;
-          box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.3);
-        }
-
-        .form-button {
-          width: 100%;
-          padding: 0.9rem;
-          font-weight: 600;
-          font-size: 1rem;
-          color: white;
-          background: linear-gradient(to right, #0284c7, #0369a1);
-          border: none;
-          border-radius: 0.75rem;
-          cursor: pointer;
-          box-shadow: 0 4px 12px rgba(2, 132, 199, 0.4);
-          transition: all 0.3s ease;
-        }
-
-        .form-button:hover {
-          background: linear-gradient(to right, #0369a1, #0c4a6e);
-          transform: scale(1.05);
-          box-shadow: 0 6px 18px rgba(3, 105, 161, 0.5);
-        }
-
-        .form-button:active {
-          transform: scale(0.97);
-        }
-
-        @media screen and (max-width: 600px) {
-          .admin-login-container {
-            margin: 1rem;
-            border-radius: 8px;
-          }
-
-          .login-form {
-            padding: 1.5rem 1rem;
-          }
-
-          .admin-banner h2 {
-            font-size: 1.4rem;
-          }
-
-          .form-input {
-            width: 90%;
-            font-size: 0.95rem;
-          }
-
-          .form-button {
-            font-size: 0.95rem;
-            padding: 0.8rem;
-          }
-        }
-      `}</style>
-    </>
+        <Button type="submit" loading={loading} className="w-full">
+          {loading ? 'Verifying…' : 'Sign in as admin'}
+        </Button>
+      </form>
+    </AuthLayout>
   );
 }
